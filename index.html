@@ -50,15 +50,36 @@
 
     </div>
 
+    <!-- Session Expired Screen -->
+    <div id="sessionExpiredScreen" class="fixed inset-0 bg-gradient-to-b from-purple-900 via-slate-900 to-indigo-950 z-40 hidden flex flex-col items-center justify-center p-6 text-center text-white">
+        <div class="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center text-rose-400 text-3xl mb-4 border border-white/20 shadow-2xl">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+        </div>
+        <h2 id="expireTitle" class="text-2xl font-black mb-2">Session Expired</h2>
+        <p id="expireSubtitle" class="text-purple-200 text-sm max-w-xs mb-2 font-semibold">Thank you for visiting!</p>
+        <p id="expireFooter" class="text-purple-300 text-xs max-w-xs mb-6 leading-relaxed">Please visit our shop again, scan the code, and leave us a review.</p>
+        <button onclick="restartSession()" class="px-6 py-2.5 bg-white text-purple-950 font-bold text-xs rounded-xl shadow-lg hover:bg-purple-50 transition-all cursor-pointer">
+            Scan Again / Refresh
+        </button>
+    </div>
+
     <script>
-        // // Edit
+        // // Edit : కింది ఆబ్జెక్ట్‌లో మీ వివరాలు మరియు సెషన్ సమయం మార్చుకోండి.
         const cardData = {
-            title: "VKS Studio",
+            title: "Dream Studio",
             subtitle: "Follow • Connect • Explore",
             logoUrl: "", 
-            footerText: "Provided by Karthik",
-            connectText: "Contact",
+            footerText: "Provided by Smart Cards",
+            connectText: "Connect",
             connectUrl: "https://instagram.com",
+
+            // సెషన్ ఎక్స్‌పైరీ సెట్టింగ్స్ (కేవలం నిమిషాలలో మాత్రమే ఇవ్వాలి)
+            session: {
+                expiryMinutes: 5, // 0 ఇస్తే ఎక్స్‌పైర్ అవ్వదు. 5 ఇస్తే 5 నిమిషాల తర్వాత ఎక్స్‌పైర్ అవుతుంది.
+                title: "Session Expired",
+                subtitle: "Thank you for visiting!",
+                footer: "Please visit our shop again, scan the code, and leave us a review."
+            },
 
             links: [
                 { 
@@ -109,12 +130,47 @@
             ]
         };
 
+        const SESSION_START_KEY = "nfc_card_session_start_v2";
+
+        function checkSessionExpiry() {
+            const expiryMins = parseInt(cardData.session.expiryMinutes || 0);
+            const sessionEl = document.getElementById('sessionExpiredScreen');
+            if (!sessionEl) return;
+
+            if (expiryMins <= 0) {
+                sessionEl.classList.add('hidden');
+                return;
+            }
+            let sessionStart = sessionStorage.getItem(SESSION_START_KEY);
+            if (!sessionStart) {
+                sessionStart = Date.now().toString();
+                sessionStorage.setItem(SESSION_START_KEY, sessionStart);
+            }
+            const elapsedMinutes = (Date.now() - parseInt(sessionStart)) / (1000 * 60);
+            if (elapsedMinutes >= expiryMins) {
+                sessionEl.classList.remove('hidden');
+            } else {
+                sessionEl.classList.add('hidden');
+            }
+        }
+
+        function restartSession() {
+            sessionStorage.setItem(SESSION_START_KEY, Date.now().toString());
+            const sessionEl = document.getElementById('sessionExpiredScreen');
+            if(sessionEl) sessionEl.classList.add('hidden');
+            renderCard();
+        }
+
         function renderCard() {
             document.getElementById('displayTitle').innerText = cardData.title || "";
             document.getElementById('displaySubtitle').innerText = cardData.subtitle || "";
             document.getElementById('displayFooterText').innerText = cardData.footerText || "";
             document.getElementById('displayConnectText').innerText = cardData.connectText || "";
             document.getElementById('displayContactLink').href = cardData.connectUrl || "#";
+
+            document.getElementById('expireTitle').innerText = cardData.session.title || "";
+            document.getElementById('expireSubtitle').innerText = cardData.session.subtitle || "";
+            document.getElementById('expireFooter').innerText = cardData.session.footer || "";
 
             const logoContainer = document.getElementById('profileLogoContainer');
             if (logoContainer) {
@@ -179,7 +235,11 @@
             }
         }
 
-        window.onload = renderCard;
+        window.onload = function() {
+            renderCard();
+            checkSessionExpiry();
+            setInterval(checkSessionExpiry, 30000);
+        };
     </script>
 </body>
 </html>
