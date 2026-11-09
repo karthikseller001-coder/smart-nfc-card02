@@ -21,7 +21,7 @@
 </head>
 <body class="bg-gradient-to-b from-purple-300 via-indigo-100 to-purple-300 text-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-0 m-0 antialiased selection:bg-purple-500 selection:text-white">
 
-    <div id="cardContentWrapper" class="w-full max-w-md min-h-screen flex flex-col justify-between pt-6 pb-6 px-6 relative overflow-hidden bg-gradient-to-b from-purple-200 via-indigo-50 to-purple-200 shadow-2xl">
+    <div class="w-full max-w-md min-h-screen flex flex-col justify-between pt-6 pb-6 px-6 relative overflow-hidden bg-gradient-to-b from-purple-200 via-indigo-50 to-purple-200 shadow-2xl">
         
         <div class="text-center mt-2 relative flex flex-col items-center">
             <div id="profileLogoContainer" class="w-24 h-24 mx-auto rounded-full bg-[#1e1b4b] flex items-center justify-center text-white shadow-2xl mb-3 border-4 border-white/70 overflow-hidden aspect-square">
@@ -50,13 +50,6 @@
 
     </div>
 
-    <!-- 404 Not Found Screen -->
-    <div id="notFoundScreen" class="fixed inset-0 bg-black text-[#888888] z-50 hidden flex flex-col items-center justify-center p-6 text-center font-sans">
-        <h1 class="text-6xl font-medium text-[#666666] m-0">404</h1>
-        <h2 class="text-2xl font-normal my-2.5 text-[#aaaaaa]">Not Found</h2>
-        <p class="text-sm text-[#666666] m-0">The resource requested could not be found on this server!</p>
-    </div>
-
     <script>
         const cardData = {
             title: "Dream Studio",
@@ -65,10 +58,6 @@
             footerText: "Provided by Smart Cards",
             connectText: "Connect",
             connectUrl: "https://instagram.com",
-
-            session: {
-                expiryMinutes: 1 // 1 నిమిషం
-            },
 
             links: [
                 { 
@@ -118,31 +107,6 @@
                 }
             ]
         };
-
-        const SESSION_START_KEY = "nfc_card_session_start_v5";
-
-        function checkSessionExpiry() {
-            const expiryMins = parseInt(cardData.session.expiryMinutes || 1);
-            const wrapperEl = document.getElementById('cardContentWrapper');
-            const notFoundEl = document.getElementById('notFoundScreen');
-            
-            if (!wrapperEl || !notFoundEl) return;
-
-            let sessionStart = localStorage.getItem(SESSION_START_KEY);
-            if (!sessionStart) {
-                sessionStart = Date.now().toString();
-                localStorage.setItem(SESSION_START_KEY, sessionStart);
-            }
-
-            const elapsedMinutes = (Date.now() - parseInt(sessionStart)) / (1000 * 60);
-            if (elapsedMinutes >= expiryMins) {
-                wrapperEl.classList.add('hidden');
-                notFoundEl.classList.remove('hidden');
-            } else {
-                wrapperEl.classList.remove('hidden');
-                notFoundEl.classList.add('hidden');
-            }
-        }
 
         function renderCard() {
             document.getElementById('displayTitle').innerText = cardData.title || "";
@@ -216,8 +180,6 @@
 
         window.onload = function() {
             renderCard();
-            checkSessionExpiry();
-            setInterval(checkSessionExpiry, 5000); // ప్రతి 5 సెకన్లకు తనిఖీ చేస్తుంది
         };
     </script>
 </body>
