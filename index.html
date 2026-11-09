@@ -67,7 +67,7 @@
             connectUrl: "https://instagram.com",
 
             session: {
-                expiryMinutes: 5 // నిమిషాలు
+                expiryMinutes: 1 // 1 నిమిషం
             },
 
             links: [
@@ -119,31 +119,19 @@
             ]
         };
 
-        function getScanId() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('scanId') || 'default';
-        }
+        const SESSION_START_KEY = "nfc_card_session_start_v5";
 
         function checkSessionExpiry() {
-            const expiryMins = parseInt(cardData.session.expiryMinutes || 0);
+            const expiryMins = parseInt(cardData.session.expiryMinutes || 1);
             const wrapperEl = document.getElementById('cardContentWrapper');
             const notFoundEl = document.getElementById('notFoundScreen');
             
             if (!wrapperEl || !notFoundEl) return;
 
-            if (expiryMins <= 0) {
-                wrapperEl.classList.remove('hidden');
-                notFoundEl.classList.add('hidden');
-                return;
-            }
-
-            const scanId = getScanId();
-            const sessionKey = `nfc_card_start_${scanId}`;
-
-            let sessionStart = localStorage.getItem(sessionKey);
+            let sessionStart = localStorage.getItem(SESSION_START_KEY);
             if (!sessionStart) {
                 sessionStart = Date.now().toString();
-                localStorage.setItem(sessionKey, sessionStart);
+                localStorage.setItem(SESSION_START_KEY, sessionStart);
             }
 
             const elapsedMinutes = (Date.now() - parseInt(sessionStart)) / (1000 * 60);
@@ -229,7 +217,7 @@
         window.onload = function() {
             renderCard();
             checkSessionExpiry();
-            setInterval(checkSessionExpiry, 10000);
+            setInterval(checkSessionExpiry, 5000); // ప్రతి 5 సెకన్లకు తనిఖీ చేస్తుంది
         };
     </script>
 </body>
