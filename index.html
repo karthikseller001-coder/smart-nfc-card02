@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,7 +23,6 @@
         }
     </script>
     <style>
-        /* Smooth transitions for interactive elements */
         .card-shadow {
             box-shadow: 0 20px 40px -15px rgba(30, 27, 75, 0.15);
         }
@@ -36,7 +36,6 @@
         <!-- Profile Header & Logo -->
         <div class="text-center mt-2 relative flex flex-col items-center">
             <div id="profileLogoContainer" class="w-24 h-24 mx-auto rounded-full bg-[#1e1b4b] flex items-center justify-center text-white shadow-2xl mb-3 border-4 border-white/70 overflow-hidden aspect-square">
-                <!-- SVG Fallback or Image populated by JS -->
             </div>
             <h1 id="displayTitle" class="font-extrabold text-3xl text-[#1e1b4b] tracking-tight"></h1>
             <p id="displaySubtitle" class="text-sm font-bold text-slate-700 mt-1"></p>
@@ -65,7 +64,7 @@
 
     </div>
 
-    <!-- 404 Not Found Minimalist Screen (Recreates exact error view) -->
+    <!-- 404 Not Found Minimalist Screen -->
     <div id="notFoundScreen" class="fixed inset-0 bg-black text-[#888888] z-50 hidden flex flex-col items-center justify-center p-6 text-center font-sans select-none">
         <h1 class="text-6xl font-medium text-[#666666] m-0 tracking-tight">404</h1>
         <h2 class="text-2xl font-normal my-2.5 text-[#aaaaaa]">Not Found</h2>
@@ -73,18 +72,16 @@
     </div>
 
     <script>
-        // Central Digital Card Data Configuration
         const cardData = {
             title: "Dream Studio",
             subtitle: "Follow • Connect • Explore",
-            logoUrl: "", // Optional image URL for logo
+            logoUrl: "", 
             footerText: "Provided by Smart Cards",
             connectText: "Connect",
             connectUrl: "https://instagram.com",
 
-            // Session expiry configuration
             session: {
-                expiryMinutes: 0 // 0 అని పెడితే టైమర్ ఆగిపోతుంది (ఎప్పుడూ ఓపెన్ లోనే ఉంటుంది)
+                expiryMinutes: 0 // 0 ఉన్నప్పుడు సైట్ ఎప్పటికీ డివైజ్‌లో ఓపెన్ అవుతుంది
             },
 
             links: [
@@ -136,13 +133,8 @@
             ]
         };
 
-        // Unique Key used for tracking overall session lifetime across refreshes
         const SESSION_START_KEY = "nfc_card_persistent_session_start";
 
-        /**
-         * Checks whether the session timer has exceeded the allowed time limit.
-         * Resets session if URL has a scan parameter (e.g. ?scan=true or dynamic QR scan).
-         */
         function checkSessionExpiry() {
             const expiryMins = parseFloat(cardData.session.expiryMinutes || 0);
             const wrapperEl = document.getElementById('cardContentWrapper');
@@ -150,24 +142,20 @@
             
             if (!wrapperEl || !notFoundEl) return;
 
-            // expiryMinutes 0 గా ఉంటే టైమర్ లాజిక్ రన్ అవ్వదు (ఎప్పుడూ కార్డ్ డిస్‌ప్లే అవుతుంది)
             if (expiryMins <= 0) {
                 wrapperEl.classList.remove('hidden');
                 notFoundEl.classList.add('hidden');
                 return;
             }
 
-            // QR కోడ్ స్కాన్ చేసినప్పుడు (URL లో ?scan లేదా కొత్త పారామీటర్ ఉంటే) లేదా మొదటిసారి వస్తే సెషన్ రీసెట్ అవుతుంది
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('scan') || urlParams.has('t')) {
                 localStorage.setItem(SESSION_START_KEY, Date.now().toString());
-                // URL నుండి పారామీటర్‌ని క్లీన్ చేయడం కోసం
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
 
             let sessionStart = localStorage.getItem(SESSION_START_KEY);
             
-            // Set timestamp when user opens the page for the first time
             if (!sessionStart) {
                 sessionStart = Date.now().toString();
                 localStorage.setItem(SESSION_START_KEY, sessionStart);
@@ -175,7 +163,6 @@
 
             const elapsedMinutes = (Date.now() - parseInt(sessionStart, 10)) / (1000 * 60);
 
-            // If time limit passed, show 404
             if (elapsedMinutes >= expiryMins) {
                 wrapperEl.classList.add('hidden');
                 notFoundEl.classList.remove('hidden');
@@ -185,9 +172,6 @@
             }
         }
 
-        /**
-         * Renders profile title, avatar logo, footer info, and link items into the DOM.
-         */
         function renderCard() {
             document.getElementById('displayTitle').innerText = cardData.title || "";
             document.getElementById('displaySubtitle').innerText = cardData.subtitle || "";
@@ -195,7 +179,6 @@
             document.getElementById('displayConnectText').innerText = cardData.connectText || "";
             document.getElementById('displayContactLink').href = cardData.connectUrl || "#";
 
-            // Render profile logo icon / image
             const logoContainer = document.getElementById('profileLogoContainer');
             if (logoContainer) {
                 if (cardData.logoUrl && cardData.logoUrl.trim() !== "") {
@@ -210,7 +193,6 @@
                 }
             }
 
-            // Render clickable and informational link items
             const container = document.getElementById('linksRenderList');
             if (!container) return;
             container.innerHTML = "";
@@ -260,13 +242,12 @@
             }
         }
 
-        // Initialize Card and Timers on page load
         window.onload = function() {
             renderCard();
             checkSessionExpiry();
-            // Continuously check session expiration every second
             setInterval(checkSessionExpiry, 1000);
         };
     </script>
 </body>
 </html>
+```
