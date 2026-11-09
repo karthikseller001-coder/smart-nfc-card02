@@ -59,7 +59,7 @@
 
     <script>
         const cardData = {
-            title: "VKS Studio",
+            title: "Dream Studio",
             subtitle: "Follow • Connect • Explore",
             logoUrl: "", 
             footerText: "Provided by Smart Cards",
@@ -67,7 +67,7 @@
             connectUrl: "https://instagram.com",
 
             session: {
-                expiryMinutes: 1
+                expiryMinutes: 5 // నిమిషాలు
             },
 
             links: [
@@ -119,7 +119,10 @@
             ]
         };
 
-        const SESSION_START_KEY = "nfc_card_session_start_v4";
+        function getScanId() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('scanId') || 'default';
+        }
 
         function checkSessionExpiry() {
             const expiryMins = parseInt(cardData.session.expiryMinutes || 0);
@@ -134,10 +137,13 @@
                 return;
             }
 
-            let sessionStart = localStorage.getItem(SESSION_START_KEY);
+            const scanId = getScanId();
+            const sessionKey = `nfc_card_start_${scanId}`;
+
+            let sessionStart = localStorage.getItem(sessionKey);
             if (!sessionStart) {
                 sessionStart = Date.now().toString();
-                localStorage.setItem(SESSION_START_KEY, sessionStart);
+                localStorage.setItem(sessionKey, sessionStart);
             }
 
             const elapsedMinutes = (Date.now() - parseInt(sessionStart)) / (1000 * 60);
